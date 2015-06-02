@@ -1,0 +1,13 @@
+<!doctype html>
+<title>File Search</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+  <h1>File Search</h1>
+  </div>
+  {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
+  <script type="text/javascript" 
+    src="https://static-cdn.kloudless.com/p/platform/sdk/kloudless.authenticator.v0.1.js"></script>
+  {% block body %}{% endblock %}
+</div>
