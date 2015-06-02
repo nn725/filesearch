@@ -3,15 +3,15 @@ from flask import Flask, request, session, g, redirect, url_for, abort, render_t
 from contextlib import closing
 import requests
 
+import os
+
+
+
 #configuration
 DATABASE = '/tmp/filesearch.db'
-DEBUG = True
-SECRET_KEY = 'development key'
-USERNAME = 'admin'
-PASSWORD = 'default'
 
 app = Flask(__name__)
-app.config.from_object('keys', silent=True)
+app.config.from_object(__name__)
 
 def connect_db():
 	return sqlite3.connect(app.config['DATABASE'])
@@ -39,7 +39,7 @@ def close_db(error):
 
 @app.route('/')
 def index():
-	return render_template('index.html')
+	return render_template('index.html', appId=os.environ['APP_ID'], results=[])
 
 @app.route('/search')
 def search():
@@ -57,24 +57,32 @@ def show_results(query):
 		lst.append([account.service, requests.get(url).contents])
 	#change lst to list of dictionary with service = service, and results = string of results
 	results = helper(lst)
-	return render_template('show_results.html', results=results)
+	return render_template('show_results.html', appId=os.environ['APP_ID'], results=results)
 
 def helper(lst):
 	d = []
 	for piece in lst:
 		s = ''
 		for o in piece[1]['objects']:
-			s = s + ',' + o
-		d.append({'service' : piece[0], 'results' : s[1:]})
+			s = s + ', ' + o
+		d.append({'service' : piece[0], 'results' : s[2:]})
 	return d
 
 @app.route('/add/<service>/<int:key>', methods=['POST'])
-def add_account():
+def add_account(service, key):
 	db = get_db()
 	db.execute('insert into accounts (service, key) values (?, ?)', [service, key])
 	g.db.commit()
 	flash("Account added")
 	return redirect(url_for('show_results'))
 
-if __name__ == '__main__':
+def main():
+	for k in ['API_KEY', 'APP_ID']:
+		if not os.environ.get(k):
+			print('error')
+			return
+
 	app.run()
+
+if __name__ == '__main__':
+	main()

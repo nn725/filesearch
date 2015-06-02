@@ -10,22 +10,22 @@
   </form>
   <ul class=entries>
   {% for result in results %}
-    <li><h2>{{ result.service }}</h2>{{ entry.text|safe }}
+    <li><h2>{{ result.service }}</h2>{{ result.results }}
   {% else %}
-    <li><em>Unbelievable.  No entries here so far</em>
+    <li><em>No results.</em>
   {% endfor %}
   </ul>
   <script type="text/javascript">
       var e = document.getElementById("auth-button");
 
       Kloudless.authenticator(e, {
-        'app_id' : '',
+        'app_id' : appId
       }, function (err, result) {
         if (err) {
           console.error('An error occured:', err);
           return;
         }
-        {{ redirect(url_for('add_account')) }}
+        {{ redirect(url_for('add_account', service=result.service, key=result.id)) }}
       })
   </script>
 {% endblock %}
