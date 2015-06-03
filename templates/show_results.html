@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block body %}
-  <button id="auth-button"> Add Account </button>
+  <input id="auth-button" type="button" value="Add Account" />
   <form action="{{ url_for('search') }}" method=post class=add-entry>
     <dl>
       <dt>Search:
@@ -9,23 +9,46 @@
     </dl>
   </form>
   <ul class=entries>
-  {% for result in results %}
-    <li><h2>{{ result.service }}</h2>{{ result.results }}
+  {% if results %}
+    {% for result in results %}
+      <li><h2>{{ result.name }}</h2>
+    {% else %}
+      <li><em>No results.</em>
+    {% endfor %}
   {% else %}
     <li><em>No results.</em>
-  {% endfor %}
+  {% endif %}
   </ul>
   <script type="text/javascript">
-      var e = document.getElementById("auth-button");
+    var appId = "{{ appId }}";
 
-      Kloudless.authenticator(e, {
-        'app_id' : appId
-      }, function (err, result) {
-        if (err) {
-          console.error('An error occured:', err);
+    Kloudless.authenticator(
+      $('#auth-button'), 
+      {'app_id' : appId}, 
+      function(err, result) {
+
+      if (err) {
+        console.error('An error occured.', err);
+        return;
+      }
+      var s = result.service;
+      var k = result.id;
+
+      //Kloudless.stop($('#auth-button'));
+
+      $.ajax({
+        type : 'POST',
+        url : '{{ url_for('add_account') }}',
+        data : {service : s, key : k},
+        success : function(response) {
+          return;
+        },
+        error : function(err) {
+          console.error("error", err);
           return;
         }
-        {{ redirect(url_for('add_account', service=result.service, key=result.id)) }}
       })
+      
+    });
   </script>
 {% endblock %}

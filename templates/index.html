@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block body %}
+  <input id="auth-button" type="button" value="Add Account" />
+  <script type="text/javascript">
+    var appId = "{{ appId }}";
+
+    Kloudless.authenticator(
+      $('#auth-button'), 
+      {'app_id' : appId}, 
+      function(err, result) {
+
+      if (err) {
+        console.error('An error occured.', err);
+        return;
+      }
+      var s = result.service;
+      var k = result.id;
+
+      Kloudless.stop($('#auth-button'));
+      
+    });
+  </script>
+{% endblock %}
